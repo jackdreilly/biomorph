@@ -1,0 +1,25 @@
+syntax = "proto3";
+package db;
+
+service Db {
+  rpc GetCreature (GetCreatureRequest) returns (GetCreatureReply) {}
+  rpc SaveCreature (SaveCreatureRequest) returns (SaveCreatureReply) {}
+}
+
+message GetCreatureRequest {
+  uint64 id = 1;
+}
+
+message GetCreatureReply {
+  repeated uint64 parents = 1;
+  map<string, double> values = 2;
+}
+
+message SaveCreatureReply {
+  uint64 id = 1;
+}
+
+message SaveCreatureRequest {
+  repeated uint64 parents = 1;
+  map<string, double> values = 2;
+}

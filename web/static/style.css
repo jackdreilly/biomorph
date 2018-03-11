@@ -1,0 +1,21 @@
+.container {
+	position: relative;
+	display: inline-block;
+	padding: 3px;
+}
+
+/* Top left text */
+.top-left {
+	position: absolute;
+	top: 8px;
+	left: 16px;
+	color: black;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.mutant {
+	border: 1px black solid;
+}
