@@ -19,3 +19,16 @@
 .mutant {
 	border: 1px black solid;
 }
+
+header {
+    font-size: larger;
+    margin: 20px;
+}
+
+body {
+    padding: 30px;
+}
+
+footer {
+    font-size: xx-small;
+}

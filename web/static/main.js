@@ -1,4 +1,5 @@
 function clear_mutations() {
+    clear_gif();
     var last;
     const mutations = get_mutations();
     while (last = mutations.lastChild) {
@@ -88,6 +89,9 @@ function draw_gif(gif) {
     const im = document.createElement("img");
     im.setAttribute("src", "data:iamge/gif;base64," + gif);
     im.setAttribute("class", "mutant");
+    const t = document.createElement("div");
+    t.innerText = "Evolution";
+    el.appendChild(t);    
     el.appendChild(im);
 }
 
