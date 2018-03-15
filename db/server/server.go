@@ -26,7 +26,7 @@ import (
 	"log"
 	"net"
 
-	pb "biomorph/db"
+	pb "github.com/jackdreilly/biomorph/db"
 
 	"bytes"
 	"encoding/json"

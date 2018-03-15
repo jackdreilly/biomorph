@@ -1,13 +1,10 @@
 package main
 
 import (
-	"biomorph"
-	pb "biomorph/db"
 	"bufio"
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"image"
 	"image/color"
 	"image/gif"
@@ -18,6 +15,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jackdreilly/biomorph"
+	pb "github.com/jackdreilly/biomorph/db"
+
+	"cloud.google.com/go/logging"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -30,6 +31,7 @@ const (
 var (
 	client pb.DbClient
 	conn   *grpc.ClientConn
+	logger *log.Logger
 )
 
 func init() {
@@ -41,6 +43,22 @@ func init() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	client = pb.NewDbClient(conn)
+
+	// Sets your Google Cloud Platform project ID.
+	projectID := "quiklyrics-go"
+
+	// Creates a client.
+	ctx := context.Background()
+	c, err := logging.NewClient(ctx, projectID)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
+
+	// Sets the name of the log to write to.
+	logName := "biomorph"
+
+	// Selects the log to write to.
+	logger = c.Logger(logName).StandardLogger(logging.Info)
 }
 
 type Image struct {
@@ -58,13 +76,17 @@ type value_map struct {
 	parents []uint64
 }
 
+func log_err(err error) {
+	if err != nil {
+		logger.Fatal(err)
+	}
+}
+
 func AddCreature(v *value_map) uint64 {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	r, err := client.SaveCreature(ctx, &pb.SaveCreatureRequest{Values: v.values, Parents: v.parents})
-	if err != nil {
-		panic(err)
-	}
+	log_err(err)
 	return r.GetId()
 }
 
@@ -72,9 +94,7 @@ func Parents(id uint64) []uint64 {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	r, err := client.GetCreature(ctx, &pb.GetCreatureRequest{Id: id})
-	if err != nil {
-		panic(err)
-	}
+	log_err(err)
 	return r.GetParents()
 }
 
@@ -130,9 +150,7 @@ func GetCreature(id uint64) (*biomorph.Creature, []uint64) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	r, err := client.GetCreature(ctx, &pb.GetCreatureRequest{Id: id})
-	if err != nil {
-		panic(err)
-	}
+	log_err(err)
 	c.SetValuesFromMap(r.GetValues())
 	return c, r.GetParents()
 }
@@ -188,7 +206,7 @@ func main() {
 	http.HandleFunc("/mutate_image", MutateImage)
 
 	http.HandleFunc("/choose_image", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.URL.Query().Get("id"))
+		logger.Println(r.URL.Query().Get("id"))
 	})
 
 	http.ListenAndServe(":8080", nil)
