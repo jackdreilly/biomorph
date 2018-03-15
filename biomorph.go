@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	image_size = 150
+	ImageSize = 150
 )
 
 type GeneRange struct {
@@ -61,12 +61,12 @@ func (c *Creature) ValuesMap() map[string]float64 {
 }
 
 func TreeGenes() (genes []*Gene) {
-	genes = append(genes, &Gene{GeneRange{float64(image_size) * 0.1, float64(image_size) * 0.1}, "branch_length"})
+	genes = append(genes, &Gene{GeneRange{float64(ImageSize) * 0.1, float64(ImageSize) * 0.1}, "branch_length"})
 	genes = append(genes, &Gene{GeneRange{2, 7}, "num_gens"})
 	genes = append(genes, &Gene{GeneRange{0.1, 1.5}, "branch_angle"})
 	genes = append(genes, &Gene{GeneRange{0.6, 1.5}, "branch_increase"})
 	genes = append(genes, &Gene{GeneRange{0.6, 1.5}, "angle_increase"})
-	genes = append(genes, &Gene{GeneRange{1, 4}, "num_branches"})
+	genes = append(genes, &Gene{GeneRange{2, 5}, "num_branches"})
 	return
 }
 
@@ -169,26 +169,4 @@ func BranchIncrease(tree *Creature) float64 {
 
 func AngleIncrease(tree *Creature) float64 {
 	return tree.GetValue("angle_increase")
-}
-
-func drawTreeGen(img *image.Gray16, tree *Creature, gen int, radians float64, p point, branch_size float64, branch_angle float64) {
-	if gen == 0 {
-		return
-	}
-	new_point := point{p.x - branch_size*math.Sin(radians), p.y - branch_size*math.Cos(radians)}
-	DrawLine(img, &line{p, new_point})
-	for i := 0; i < NumBranches(tree)+1; i++ {
-		drawTreeGen(img, tree, gen-1, radians-branch_angle/2.0+branch_angle*float64(i)/float64(NumBranches(tree)), new_point, branch_size*BranchIncrease(tree), branch_angle*AngleIncrease(tree))
-	}
-}
-
-func DrawTreeCreature(tree *Creature) *image.Gray16 {
-	img := image.NewGray16(image.Rect(0, 0, image_size, image_size))
-	for i := 0; i < image_size; i++ {
-		for j := 0; j < image_size; j++ {
-			img.Set(i, j, color.White)
-		}
-	}
-	drawTreeGen(img, tree, NumGens(tree), 0, point{float64(img.Rect.Size().X) / 2, float64(img.Rect.Size().Y) * 9 / 10}, BranchLength(tree), BranchAngle(tree))
-	return img
 }
