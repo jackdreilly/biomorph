@@ -27,7 +27,10 @@ type GeneValue struct {
 }
 
 func (g *GeneValue) Mutate() *GeneValue {
-	new_value := g.Value + (0.5-rand.Float64())*0.2*(g.Gene.Range.Max-g.Gene.Range.Min)
+	if rand.Float64() > 0.3 {
+		return &GeneValue{g.Gene, g.Value}
+	}
+	new_value := g.Value + (0.5-rand.Float64())*0.3*(g.Gene.Range.Max-g.Gene.Range.Min)
 	if new_value > g.Gene.Range.Max {
 		new_value = g.Gene.Range.Max
 	}
@@ -61,12 +64,14 @@ func (c *Creature) ValuesMap() map[string]float64 {
 }
 
 func TreeGenes() (genes []*Gene) {
-	genes = append(genes, &Gene{GeneRange{float64(ImageSize) * 0.1, float64(ImageSize) * 0.1}, "branch_length"})
-	genes = append(genes, &Gene{GeneRange{2, 7}, "num_gens"})
-	genes = append(genes, &Gene{GeneRange{0.1, 1.5}, "branch_angle"})
-	genes = append(genes, &Gene{GeneRange{0.6, 1.5}, "branch_increase"})
-	genes = append(genes, &Gene{GeneRange{0.6, 1.5}, "angle_increase"})
-	genes = append(genes, &Gene{GeneRange{2, 5}, "num_branches"})
+	genes = append(genes, &Gene{GeneRange{float64(ImageSize) * 0.1, float64(ImageSize) * 0.4}, "branch_length"})
+	genes = append(genes, &Gene{GeneRange{2, 5}, "num_gens"})
+	genes = append(genes, &Gene{GeneRange{0.1, 5}, "branch_angle"})
+	genes = append(genes, &Gene{GeneRange{0.1, 2}, "branch_increase"})
+	genes = append(genes, &Gene{GeneRange{0.1, 2}, "angle_increase"})
+	genes = append(genes, &Gene{GeneRange{2, 9}, "num_branches"})
+	genes = append(genes, &Gene{GeneRange{-0.1, 0.1}, "angle_noise"})
+	genes = append(genes, &Gene{GeneRange{-0.1, 0.1}, "length_noise"})
 	return
 }
 
@@ -169,4 +174,12 @@ func BranchIncrease(tree *Creature) float64 {
 
 func AngleIncrease(tree *Creature) float64 {
 	return tree.GetValue("angle_increase")
+}
+
+func AngleNoise(tree *Creature) float64 {
+	return tree.GetValue("angle_noise")
+}
+
+func LengthNoise(tree *Creature) float64 {
+	return tree.GetValue("length_noise")
 }
